@@ -103,7 +103,7 @@ class Video_Embed_Widget extends WP_Widget {
 			echo $before_title . $title . $after_title;	
 		}
 		
-		echo $url;
+		// @todo display the embed code
 		
 		echo $after_widget;
 		
