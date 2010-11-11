@@ -2,7 +2,7 @@
 /*
 Plugin Name: Video Embed Widget
 Plugin URI: http://www.danielbachhuber.com/projects/video-embed-widget/
-Description: Embed videos in your sidebar using widgets
+Description: Embed videos in your sidebar using widgets. Powered by Embed.ly!
 Author: Daniel Bachhuber
 Version: 0.1
 Author URI: http://www.danielbachhuber.com/
@@ -47,13 +47,10 @@ class Video_Embed_Widget extends WP_Widget {
 		
 		extract( $instance );
 		
-		if ( !isset( $title ) ) {
-			$title = '';
-		}
-		
-		if ( !isset( $url ) ) {
-			$url = '';
-		}
+		$title = ( isset( $title ) ) ? $title : '';
+		$url = ( isset( $url ) ) ? $url : '';		
+		$max_height = ( isset( $max_height ) ) ? $max_height : '';
+		$max_width = ( isset( $max_width ) ) ? $max_width : '';
 		
 		// Title
 		echo '<p><label for="' . $this->get_field_name( 'title' ) . '">Title:</label><br />'
@@ -64,8 +61,16 @@ class Video_Embed_Widget extends WP_Widget {
 		echo '<p><label for="' . $this->get_field_name( 'url' ) . '">URL:</label><br />'
 				. '<input type="text" class="widefat" id="' . $this->get_field_id( 'url' )
 				. '" name="' . $this->get_field_name( 'url' ) . '" value="' . $url . '" />'
-				. '<span class="description">Paste your oEmbed-enabled video URL</span>'
+				. '<span class="description">Paste your oEmbed-enabled video URL (@todo Link to providers)</span>'
 				. '</p>';
+				
+		// Max height and width
+		echo '<p><label for="' . $this->get_field_name( 'max_height' ) . '">Max height:</label> '
+				. '<input type="text" size="3" maxlength="3" id="' . $this->get_field_id( 'max_height' )
+				. '" name="' . $this->get_field_name( 'max_height' ) . '" value="' . $max_height . '" />&nbsp;&nbsp;'
+				. '<label for="' . $this->get_field_name( 'max_width' ) . '">Max width:</label> '
+				. '<input type="text" size="3" maxlength="3" id="' . $this->get_field_id( 'max_width' )
+						. '" name="' . $this->get_field_name( 'max_width' ) . '" value="' . $max_width . '" /></p>';
 		
 	}
 	
@@ -78,6 +83,8 @@ class Video_Embed_Widget extends WP_Widget {
 		
 		$instance['title'] = strip_tags( $new_instance['title'] );
 		$instance['url'] = strip_tags( $new_instance['url'] );
+		$instance['max_height'] = (int) $new_instance['max_height'];
+		$instance['max_width'] = (int) $new_instance['max_width'];		
 		
 		return $instance;
 		

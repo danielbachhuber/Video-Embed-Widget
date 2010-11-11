@@ -9,6 +9,8 @@ Embed videos (and other oEmbed media) in your sidebar using widgets
 
 == Description ==
 
+Powered by Embed.ly!
+
 @todo
 
 == Installation ==
