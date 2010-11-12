@@ -84,7 +84,10 @@ class Video_Embed_Widget extends WP_Widget {
 		$instance['title'] = strip_tags( $new_instance['title'] );
 		$instance['url'] = strip_tags( $new_instance['url'] );
 		$instance['max_height'] = (int) $new_instance['max_height'];
-		$instance['max_width'] = (int) $new_instance['max_width'];		
+		$instance['max_width'] = (int) $new_instance['max_width'];
+		
+		// Delete the cache so the results are available immediately
+		delete_transient( 'widget-' . $this->id_base . '-' . $this->number );	
 		
 		return $instance;
 		
@@ -103,7 +106,27 @@ class Video_Embed_Widget extends WP_Widget {
 			echo $before_title . $title . $after_title;	
 		}
 		
-		// @todo display the embed code
+		if ( false === ( $embed_code = get_transient( 'widget-' . $this->id_base . '-' . $this->number ) ) ) {
+			
+			$request_url = 'http://api.embed.ly/1/oembed?url=' . urlencode( $url ) . '&maxheight=' . $max_height . '&maxwidth=' . $max_width;
+			$request = new WP_Http;
+			$result = $request->request( $request_url );
+			if ( is_wp_error( $result ) ) {
+				$embed_code = '';
+				$cache_time = 60;
+			} else {
+				$data = json_decode( $result['body'], true );
+				$embed_code = $data['html'];
+				if ( isset( $data['cache_age'] ) ) {
+					$cache_time = $data['cache_age'];
+				} else {
+					$cache_time = 3600;					
+				}
+			}
+			set_transient( 'widget-' . $this->id_base . '-' . $this->number, $embed_code, $cache_time );
+		}		
+		
+		echo $embed_code;
 		
 		echo $after_widget;
 		
