@@ -5,13 +5,15 @@ Requires at least: 2.9.2
 Tested up to: 3.0.1
 Stable tag: trunk
 
-Embed videos (and other oEmbed media) in your sidebar using widgets
+Easy-peasy way to embed videos (and other oEmbed media) in your sidebar using widgets
 
 == Description ==
 
-Powered by Embed.ly!
+Embed videos (and other oEmbed media) in your sidebar using widgets.
 
-@todo
+Every widget has an optional title, field for the URL you want to embed, and maximum height/widget for the media object.
+
+Embed codes are cached using the transients API and powered by Embed.ly!
 
 == Installation ==
 
