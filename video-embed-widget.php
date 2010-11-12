@@ -16,6 +16,7 @@ if ( !class_exists( 'Video_Embed_Widget' ) ) {
 
 /**
  * Establish our widget class
+ * @author danielbachhuber
  */
 class Video_Embed_Widget extends WP_Widget {
 
@@ -42,6 +43,7 @@ class Video_Embed_Widget extends WP_Widget {
 	
 	/**
 	 * Settings form for each widget
+	 * @todo Choose between embed code providers
 	 */
 	function form( $instance ) {
 		
@@ -57,11 +59,11 @@ class Video_Embed_Widget extends WP_Widget {
 				. '<input type="text" class="widefat" id="' . $this->get_field_id( 'title' )
 				. '" name="' . $this->get_field_name( 'title' ) . '" value="' . $title . '" /></p>';
 				
-		// URL
+		// URL - @todo Link to the list of providers
 		echo '<p><label for="' . $this->get_field_name( 'url' ) . '">URL:</label><br />'
 				. '<input type="text" class="widefat" id="' . $this->get_field_id( 'url' )
 				. '" name="' . $this->get_field_name( 'url' ) . '" value="' . $url . '" />'
-				. '<span class="description">Paste your oEmbed-enabled video URL (@todo Link to providers)</span>'
+				. '<span class="description">Paste your oEmbed-enabled video URL</span>'
 				. '</p>';
 				
 		// Max height and width
@@ -86,7 +88,7 @@ class Video_Embed_Widget extends WP_Widget {
 		$instance['max_height'] = (int) $new_instance['max_height'];
 		$instance['max_width'] = (int) $new_instance['max_width'];
 		
-		// Delete the cache so the results are available immediately
+		// Delete the cache so the updated settings are available immediately
 		delete_transient( 'widget-' . $this->id_base . '-' . $this->number );	
 		
 		return $instance;
@@ -106,17 +108,20 @@ class Video_Embed_Widget extends WP_Widget {
 			echo $before_title . $title . $after_title;	
 		}
 		
+		// Only make an API call to Embed.ly if the cache has expired
 		if ( false === ( $embed_code = get_transient( 'widget-' . $this->id_base . '-' . $this->number ) ) ) {
 			
 			$request_url = 'http://api.embed.ly/1/oembed?url=' . urlencode( $url ) . '&maxheight=' . $max_height . '&maxwidth=' . $max_width;
 			$request = new WP_Http;
 			$result = $request->request( $request_url );
+			// Try again in 60 seconds if we get an error
 			if ( is_wp_error( $result ) ) {
 				$embed_code = '';
 				$cache_time = 60;
 			} else {
 				$data = json_decode( $result['body'], true );
 				$embed_code = $data['html'];
+				// Sometimes the response includes a suggested cache age
 				if ( isset( $data['cache_age'] ) ) {
 					$cache_time = $data['cache_age'];
 				} else {
@@ -126,7 +131,8 @@ class Video_Embed_Widget extends WP_Widget {
 			set_transient( 'widget-' . $this->id_base . '-' . $this->number, $embed_code, $cache_time );
 		}		
 		
-		echo $embed_code;
+		// Woo hoo! Our video is embedded!
+		echo '<div class="embed_wrap">' . $embed_code . '</div>';
 		
 		echo $after_widget;
 		
